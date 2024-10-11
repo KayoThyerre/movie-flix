@@ -5,6 +5,8 @@ const port = 3000;
 const app = express();
 const prisma = new PrismaClient();
 
+app.use(express.json());
+
 app.get("/", (_, res) => {
     res.send("Home Page");
 });
@@ -23,15 +25,22 @@ app.get("/movies", async (_, res) => {
 });
 
 app.post("/movies", async (req, res) => {
-    await prisma.movie.create({
-        data: {
-            title: "Filme de teste",
-            genre_id: 7,
-            language_id: 1,
-            oscar_count: 0,
-            release_date: new Date(2020, 0, 1),
-        }
-    });
+
+    const { title, genre_id, language_id, oscar_count, release_date } = req.body;
+
+    try {
+        await prisma.movie.create({
+            data: {
+                title: title,
+                genre_id: genre_id,
+                language_id: language_id,
+                oscar_count: oscar_count,
+                release_date: new Date(release_date),
+            }
+        });
+    } catch (error) {
+        res.status(500).send({ message: "Falha ao cadastrar um filme" });
+    }
 
     res.status(201).send();
 });
