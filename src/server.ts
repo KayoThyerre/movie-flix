@@ -15,11 +15,25 @@ app.get("/movies", async (_, res) => {
             title: "asc"
         },
         include: {
-            genres : true,
+            genres: true,
             languages: true
         }
     });
     res.json(movies);
+});
+
+app.post("/movies", async (req, res) => {
+    await prisma.movie.create({
+        data: {
+            title: "Filme de teste",
+            genre_id: 7,
+            language_id: 1,
+            oscar_count: 0,
+            release_date: new Date(2020, 0, 1),
+        }
+    });
+
+    res.status(201).send();
 });
 
 app.listen(port, () => {
