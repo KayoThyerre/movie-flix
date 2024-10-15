@@ -37,13 +37,13 @@ app.post("/movies", async (req, res) => {
         // case sensitive - diferencia os maiúculos e minúsculos
 
         const movieWithSameTitle = await prisma.movie.findFirst({
-            where: { title: { equals: title, mode: "insensitive"} },
+            where: { title: { equals: title, mode: "insensitive" } },
         });
 
-        if(movieWithSameTitle) {
+        if (movieWithSameTitle) {
             return res
-            .status(409)
-            .send({ message: "Já existe um filme cadastrado com esse título."});
+                .status(409)
+                .send({ message: "Já existe um filme cadastrado com esse título." });
         };
 
 
@@ -58,8 +58,8 @@ app.post("/movies", async (req, res) => {
         });
     } catch (error) {
         res
-        .status(500)
-        .send({ message: "Falha ao cadastrar um filme" });
+            .status(500)
+            .send({ message: "Falha ao cadastrar um filme" });
     }
 
     res.status(201).send();
@@ -69,19 +69,34 @@ app.put("/movies/:id", async (req, res) => {
     //pegar o id do registro que será atualizado
     const id = Number(req.params.id)
 
-    //pegar os dados do filme que será atualizado e atualizar ele no prisma
-    const movie = await prisma.movie.update({
-        where: {
-            id
-        },
-        data: {
-            release_date: new Date(req.body.release_date)
+    try {
+        const movie = await prisma.movie.findUnique({
+            where: {
+                id
+            }
+        });
+
+        if (!movie) {
+            return res.status(404).send({ message: "Filme não encontrado" });
         }
-    });
 
-    // retornar o status correto que o filme será atualizado
-    res.status(200).send();
+        const data = { ...req.body };
+        data.release_date = data.release_date ? new Date(data.release_date) : undefined;
 
+        //pegar os dados do filme que será atualizado e atualizar ele no prisma
+        await prisma.movie.update({
+            where: {
+                id
+            },
+            data: data
+        });
+
+        // retornar o status correto que o filme será atualizado
+        res.status(200).send();
+
+    } catch(error) {
+        return res.status(500).send({ message: "Falha ao atualizar o registro do filme" })
+    }
 });
 
 app.listen(port, () => {
