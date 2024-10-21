@@ -8,7 +8,7 @@ const app = express();
 const prisma = new PrismaClient();
 
 app.use(express.json());
-app.use ("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.get("/", (_, res) => {
     res.send("Home Page");
@@ -114,7 +114,7 @@ app.delete("/movies/:id", async (req, res) => {
         await prisma.movie.delete({ where: { id } });
 
         res.status(200).send({ message: "Filme removido com sucesso." });
-    } catch(error){
+    } catch (error) {
         return res.status(500).send({ message: "Não foi possível remover o filme." });
     }
 });
@@ -123,7 +123,7 @@ app.get("/movies/:genreName", async (req, res) => {
     //receber o nome do genero pelos parametros da rota
 
     //filtrar os filmes do banco pelo genero
-    try{
+    try {
         const moviesFilteredByGenreName = await prisma.movie.findMany({
             include: {
                 genres: true,
@@ -139,7 +139,7 @@ app.get("/movies/:genreName", async (req, res) => {
             }
         });
         res.status(200).send(moviesFilteredByGenreName);
-    } catch(error){
+    } catch (error) {
         return res.status(500).send({ message: "Falha ao filtrar filmes por genero" })
     }
 });
